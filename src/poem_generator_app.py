@@ -1,74 +1,29 @@
-import base64
-import os
 import streamlit as st
-
+import os
+from PIL import Image
 import prompt_generator
 from google import genai
 from dotenv import load_dotenv
-import time
-from config import *
+from configs import *
 import pymongo
 from datetime import datetime
 import streamlit.components.v1 as components
+from utils import *
 
+logo_img_path = os.path.join(os.path.dirname(__file__), '..', 'data', LOGO_IMAGE, )
+logo_img = Image.open(logo_img_path)
 
-def set_bg(img_file):
-    with open(img_file, 'rb') as f:
-        img_data = f.read()
-    img_encoded = base64.b64encode(img_data)
-
-    style = f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/jpeg;base64,{img_encoded.decode()}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        /* --- STREAMLIT BUTTON OVERRIDE --- */
-        div.stButton > button:first-child {{
-            background-color: #FF5C77 !important; /* Your Primary Color */
-            color: #FFFFFF !important;           /* White text */
-            border: none !important;
-            border-radius: 0.5rem !important;
-            padding: 0.5rem 1rem !important;
-            transition: background-color 0.3s ease !important;
-        }}
-
-        /* Match the darker hover effect */
-        div.stButton > button:first-child:hover {{
-            background-color: #E04B63 !important; /* Darker version of primary */
-            color: #FFFFFF !important;           /* Keep text white */
-            border: none !important;
-        }}
-
-        /* The 'Active' state when clicked */
-        div.stButton > button:first-child:active {{
-            background-color: #C13A51 !important;
-            color: #FFFFFF !important;
-        }}
-        </style>
-        """
-    st.markdown(style, unsafe_allow_html=True)
-
-
-def text_animation(text, speed=0.01):
-    placeholder = st.empty()
-    typed = ''
-    for c in text:
-        typed += c
-        placeholder.markdown(
-            f"{typed}",
-            unsafe_allow_html=True
-        )
-        time.sleep(speed)
+st.set_page_config(
+    page_title='Mother\'s Day Poem',
+    layout='centered',
+    page_icon=logo_img,
+    initial_sidebar_state='collapsed',
+)
 
 
 def save_poem(name, traits, language, prompt, response):
     data = {
-        'name': name,
+        'name': name.title(),
         'traits': traits,
         'language': language,
         'prompt': prompt,
@@ -77,9 +32,6 @@ def save_poem(name, traits, language, prompt, response):
     }
 
     st.session_state['collection'].insert_one(data)
-
-
-import streamlit.components.v1 as components
 
 
 def trigger_copy_to_clipboard(text):
@@ -130,16 +82,10 @@ def copy_button_component(text):
             }});
             </script>
         """
-    # Keep the height enough to show the button clearly
     return components.html(html_code, height=75)
 
 
-st.set_page_config(
-    page_title='Mother\'s Day Poem',
-    layout='centered',
-    page_icon='🌸',
-    initial_sidebar_state='collapsed',
-)
+remove_bar()
 
 
 @st.cache_resource
@@ -172,10 +118,10 @@ if 'response' not in st.session_state:
 if 'collection' not in st.session_state:
     st.session_state['collection'] = initialize_db()
 
-img_path = os.path.join(os.path.dirname(__file__), '..', 'data', BACKGROUND_IMAGE, )
-set_bg(img_path)
+bg_img_path = os.path.join(os.path.dirname(__file__), '..', 'data', BACKGROUND_IMAGE, )
+set_bg(bg_img_path)
 
-st.title('Mother\'s Day Poem')
+logo_title('Mother\'s Day Poem', logo_img_path)
 
 name = st.text_input('Mother\'s Name')
 
@@ -197,7 +143,6 @@ traits_list = ['Loving',
                'Role Model',
                'Inspiring',
                'Traveler']
-
 
 selected_trait = st.multiselect('Select Traits', traits_list, max_selections=5)
 
@@ -268,29 +213,6 @@ if st.session_state['response_exists']:
 
     copy_button = copy_button_component(response)
 
-
 st.markdown('<div style="height: 100px;"></div>', unsafe_allow_html=True)
 
-st.markdown("---")  # Visual divider
-st.markdown(
-    """
-    <style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: rgba(255, 255, 255, 0.5);
-        color: black;
-        text-align: center;
-        padding: 10px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    </style>
-    <div class="footer">
-        Developed by Basel Al-Dwairi | GJU AI Club 
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+footing()

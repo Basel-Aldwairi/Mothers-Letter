@@ -2,58 +2,14 @@ import streamlit as st
 import pymongo
 import os
 from dotenv import load_dotenv
-import base64
-import time
-from config import *
+from configs import *
+from PIL import Image
+from utils import *
 
+logo_img_path = os.path.join(os.path.dirname(__file__), '..', 'data', LOGO_IMAGE, )
+logo_img = Image.open(logo_img_path)
 
-st.set_page_config(page_title='Grand Ceremony', layout='wide', page_icon='🌸')
-
-
-def set_styling(img_file):
-    with open(img_file, 'rb') as f:
-        img_encoded = base64.b64encode(f.read()).decode()
-
-    style = f"""
-        <style>
-        .stApp {{
-            background-image: url("data:image/jpeg;base64,{img_encoded}");
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
-        }}
-
-        /* Glassmorphism Card */
-        .poem-card {{
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(15px);         
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-            color: #333333;
-            min-height: 250px;
-            font-family: 'Source Sans Pro', sans-serif;
-        }}
-
-        .poem-header {{
-            color: #FF5C77;
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }}
-
-        .poem-content {{
-            font-size: 1.1rem;
-            line-height: 1.4;
-            white-space: pre-line; /* Keeps the poem line breaks without #### */
-        }}
-        </style>
-    """
-    st.markdown(style, unsafe_allow_html=True)
+st.set_page_config(page_title='Grand Ceremony', layout='wide', page_icon=logo_img)
 
 
 @st.cache_resource
@@ -63,12 +19,14 @@ def initialize_db():
     return client[os.getenv('MONGO_DB')][os.getenv('MONGO_COLLECTION')]
 
 
+remove_bar()
+
 db_collection = initialize_db()
 
-img_path = os.path.join(os.path.dirname(__file__), '..', 'data', BACKGROUND_IMAGE,)
+img_path = os.path.join(os.path.dirname(__file__), '..', 'data', BACKGROUND_IMAGE, )
 set_styling(img_path)
 
-st.title("Mother's Day Poems Gallery")
+logo_title('Mother\'s Day Poems Gallery', logo_img_path)
 
 responses = list(db_collection.find().sort('timestamp', -1))
 
@@ -95,31 +53,7 @@ if responses:
                     """, unsafe_allow_html=True)
 
 
-st.markdown(
-    """
-    <style>
-    .footer {
-        position: fixed;
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        background-color: rgba(255, 255, 255, 0.5);
-        color: black;
-        text-align: center;
-        padding: 10px;
-        font-size: 14px;
-        font-weight: bold;
-    }
-    </style>
-    <div class="footer">
-        Developed by Basel Al-Dwairi | GJU AI Club 
-    </div>
-    """,
-    unsafe_allow_html=True
-)
-
-
-
+footing()
 
 time.sleep(10)
 st.rerun()
