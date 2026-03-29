@@ -4,6 +4,8 @@ import time
 from dotenv import load_dotenv
 import os
 import pymongo
+import certifi
+
 
 def read_base64(img_file):
     with open(img_file, 'rb') as f:
@@ -205,7 +207,7 @@ def connect_atlas():
 
     try:
         # 3. Connect with a timeout so it doesn't hang forever if the Wi-Fi is down
-        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000, tlsCAFile=certifi.where())
         # Trigger a quick check to see if the connection is actually alive
         client.admin.command('ping')
 
