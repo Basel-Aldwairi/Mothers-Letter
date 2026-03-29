@@ -14,9 +14,7 @@ st.set_page_config(page_title='Grand Ceremony', layout='wide', page_icon=logo_im
 
 @st.cache_resource
 def initialize_db():
-    load_dotenv()
-    client = pymongo.MongoClient(os.getenv('MONGO_URI'))
-    return client[os.getenv('MONGO_DB')][os.getenv('MONGO_COLLECTION')]
+    return connect_atlas()
 
 
 remove_bar()
@@ -51,7 +49,6 @@ if responses:
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
-
 
 footing()
 

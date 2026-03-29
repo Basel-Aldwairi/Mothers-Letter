@@ -98,11 +98,7 @@ def initialize_client():
 
 @st.cache_resource
 def initialize_db():
-    load_dotenv()
-    client = pymongo.MongoClient(os.getenv('MONGO_URI'))
-    db = client[os.getenv('MONGO_DB')]
-    collection = db[os.getenv('MONGO_COLLECTION')]
-    return collection
+    return connect_atlas()
 
 
 if 'client' not in st.session_state:

@@ -1,7 +1,9 @@
 import base64
 import streamlit as st
 import time
-
+from dotenv import load_dotenv
+import os
+import pymongo
 
 def read_base64(img_file):
     with open(img_file, 'rb') as f:
@@ -135,25 +137,31 @@ def footing():
 def remove_bar():
     st.markdown("""
         <style>
+        /* 1. Hide the background and border of the top header */
         [data-testid="stHeader"] {
-            display: none !important;
+            background: rgba(0,0,0,0) !important;
+            border-bottom: none !important;
         }
 
-        #MainMenu {
+        /* 2. Hide the 'Deploy' button and the 'Hamburger' menu (the 3 dots) */
+        [data-testid="stAppDeploy"], #MainMenu {
             visibility: hidden !important;
         }
 
-        footer {
-            visibility: hidden !important;
-        }
-
+        /* 3. Pull the main content up to fill the gap */
         .block-container {
             padding-top: 2rem !important;
-            padding-bottom: 0rem !important;
         }
 
-        [data-testid="stStatusWidget"] {
-            display: none !important;
+        /* 4. OPTIONAL: Customize the Sidebar's appearance to match your theme */
+        [data-testid="stSidebar"] {
+            background-color: #F3CFC6 !important; /* Your secondaryBackgroundColor */
+            border-right: 1px solid #FF8A9D;
+        }
+
+        /* Change the color of the sidebar text and labels */
+        [data-testid="stSidebar"] .stMarkdown, [data-testid="stSidebar"] label {
+            color: #333333 !important;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -173,3 +181,37 @@ def logo_title(text, img_path):
         """,
         unsafe_allow_html=True
     )
+
+def get_secret(key):
+    try:
+        # This only works if secrets are actually set up
+        return st.secrets.get(key)
+    except (FileNotFoundError, KeyError, Exception):
+        # Fallback if secrets aren't initialized
+        return None
+
+def connect_atlas():
+    load_dotenv()
+
+    # 2. Priority: Check Streamlit Secrets (Cloud), then Environment (Local)
+    # Streamlit Cloud looks at 'secrets' first
+    mongo_uri = get_secret("ATLASDB_URI") or os.getenv("ATLASDB_URI")
+    db_name = get_secret("MONGO_DB") or os.getenv("MONGO_DB", "mothers_day_db")
+    coll_name = get_secret("MONGO_COLLECTION") or os.getenv("MONGO_COLLECTION", "poems")
+
+    if not mongo_uri:
+        st.error("MongoDB URI not found! Check your Secrets/Env.")
+        return None
+
+    try:
+        # 3. Connect with a timeout so it doesn't hang forever if the Wi-Fi is down
+        client = pymongo.MongoClient(mongo_uri, serverSelectionTimeoutMS=5000)
+        # Trigger a quick check to see if the connection is actually alive
+        client.admin.command('ping')
+
+        db = client[db_name]
+        return db[coll_name]
+
+    except Exception as e:
+        st.error(f"Database Connection Failed: {e}")
+        return None
