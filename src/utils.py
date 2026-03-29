@@ -193,37 +193,36 @@ def get_secret(key):
         return None
 
 def connect_atlas():
-    def connect_atlas():
-        load_dotenv()
+    load_dotenv()
 
-        # 1. Grab credentials
-        mongo_uri = get_secret("ATLASDB_URI") or os.getenv("ATLASDB_URI")
-        db_name = get_secret("MONGO_DB") or os.getenv("MONGO_DB", "mothers_day_db")
-        coll_name = get_secret("MONGO_COLLECTION") or os.getenv("MONGO_COLLECTION", "poems")
+    # 1. Grab credentials
+    mongo_uri = get_secret("ATLASDB_URI") or os.getenv("ATLASDB_URI")
+    db_name = get_secret("MONGO_DB") or os.getenv("MONGO_DB", "mothers_day_db")
+    coll_name = get_secret("MONGO_COLLECTION") or os.getenv("MONGO_COLLECTION", "poems")
 
-        if not mongo_uri:
-            st.error("MongoDB URI not found!")
-            return None
+    if not mongo_uri:
+        st.error("MongoDB URI not found!")
+        return None
 
-        try:
-            # 2. Optimized Connection Pooling
-            client = pymongo.MongoClient(
-                mongo_uri,
-                tlsCAFile=certifi.where(),
-                # --- POOLING & SPEED PARAMETERS ---
-                maxPoolSize=50,  # Allows up to 50 concurrent connections
-                minPoolSize=5,  # Keeps at least 5 connections "warm" at all times
-                serverSelectionTimeoutMS=2000,  # Faster fail if Atlas is down (2s instead of 5s)
-                connectTimeoutMS=2000,  # Faster initial connection timeout
-                socketTimeoutMS=20000,  # Prevents long hangs on slow university Wi-Fi
-                retryWrites=True
-            )
+    try:
+        # 2. Optimized Connection Pooling
+        client = pymongo.MongoClient(
+            mongo_uri,
+            tlsCAFile=certifi.where(),
+            # --- POOLING & SPEED PARAMETERS ---
+            maxPoolSize=50,  # Allows up to 50 concurrent connections
+            minPoolSize=5,  # Keeps at least 5 connections "warm" at all times
+            serverSelectionTimeoutMS=2000,  # Faster fail if Atlas is down (2s instead of 5s)
+            connectTimeoutMS=2000,  # Faster initial connection timeout
+            socketTimeoutMS=20000,  # Prevents long hangs on slow university Wi-Fi
+            retryWrites=True
+        )
 
-            # 3. Fast "Alive" Check
-            client.admin.command('ping')
+        # 3. Fast "Alive" Check
+        client.admin.command('ping')
 
-            return client[db_name][coll_name]
+        return client[db_name][coll_name]
 
-        except Exception as e:
-            st.error(f"Database Connection Failed: {e}")
-            return None
+    except Exception as e:
+        st.error(f"Database Connection Failed: {e}")
+        return None
