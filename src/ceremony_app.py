@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from configs import *
 from PIL import Image
 from utils import *
+from datetime import timedelta
 
 logo_img_path = os.path.join(os.path.dirname(__file__), '..', 'data', LOGO_IMAGE, )
 logo_img = Image.open(logo_img_path)
@@ -38,6 +39,8 @@ if responses:
             if i + j < len(res_list):
                 res = res_list[i + j]
                 clean_poem = res['respose'].replace('#', '').replace('`', '').strip()
+                local_time = res['timestamp'] + timedelta(hours=3)
+
 
                 with cols[j]:
                     st.markdown(f"""
@@ -45,7 +48,7 @@ if responses:
                             <div class="poem-header">For {res['name']}</div>
                             <div class="poem-content">{clean_poem}</div>
                             <div style="font-size: 0.8rem; color: #666; margin-top: 15px;">
-                                {res['timestamp'].strftime('%H:%M | %d-%m-%Y ')}
+                                {local_time.strftime('%H:%M | %d-%m-%Y ')}
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
