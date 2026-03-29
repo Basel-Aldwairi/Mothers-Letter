@@ -6,6 +6,8 @@ from configs import *
 from PIL import Image
 from utils import *
 from datetime import timedelta
+from streamlit_autorefresh import st_autorefresh
+
 
 logo_img_path = os.path.join(os.path.dirname(__file__), '..', 'data', LOGO_IMAGE, )
 logo_img = Image.open(logo_img_path)
@@ -67,5 +69,4 @@ else:
 
 footing()
 
-time.sleep(10)
-st.rerun()
+count = st_autorefresh(interval=10000, limit=100, key="fizzbuzzcounter")

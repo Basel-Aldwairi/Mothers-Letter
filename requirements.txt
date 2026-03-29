@@ -130,3 +130,4 @@ dnspython
 streamlit
 python-dotenv
 Pillow
+streamlit-autorefresh
