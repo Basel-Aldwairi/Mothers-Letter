@@ -96,7 +96,7 @@ def initialize_client():
     return client
 
 
-@st.cache_resource
+@st.cache_resource(ttl=3600)
 def initialize_db():
     return connect_atlas()
 

@@ -13,7 +13,7 @@ logo_img = Image.open(logo_img_path)
 st.set_page_config(page_title='Grand Ceremony', layout='wide', page_icon=logo_img)
 
 
-@st.cache_resource
+@st.cache_resource(ttl=3600)
 def initialize_db():
     return connect_atlas()
 
@@ -26,6 +26,15 @@ img_path = os.path.join(os.path.dirname(__file__), '..', 'data', BACKGROUND_IMAG
 set_styling(img_path)
 
 logo_title('Mother\'s Day Poems Gallery', logo_img_path)
+
+with st.sidebar:
+    st.markdown('Share App')
+
+    with st.popover('Open QR Code'):
+        st.write('Scan to write your own poem!')
+
+        qr_path = os.path.join(os.path.dirname(__file__), '..', 'data', QR_CODE_IMAGE, )
+        st.image(qr_path, width='content', caption='GJU AI Club | Mother\'s Day 2026')
 
 responses = list(db_collection.find().sort('timestamp', -1))
 
@@ -52,6 +61,9 @@ if responses:
                             </div>
                         </div>
                     """, unsafe_allow_html=True)
+
+else:
+    st.info('Waiting for Poems...')
 
 footing()
 
