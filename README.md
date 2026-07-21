@@ -11,6 +11,7 @@
 > Built with love by **Basel Al-Dwairi** for the **GJU AI Club**'s Mother's Day event at **German Jordanian University (GJU)**.
 
 </div>
+
 ---
 
 ## About the Project
